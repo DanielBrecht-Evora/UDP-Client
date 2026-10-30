@@ -12,8 +12,12 @@ public class Client {
         while (in.hasNextLine()) {
             byte[] data = in.nextLine().getBytes();
             // Bei jeder Nachricht neu aufloesen, da sich die Pods aendern koennen.
+            // Der Cluster ist dual-stack: "peers" liefert pro Pod eine IPv4- und eine IPv6-Adresse.
+            // Nur IPv4 nehmen, sonst kommt jede Nachricht doppelt beim Server an.
             for (InetAddress addr : InetAddress.getAllByName(host)) {
-                socket.send(new DatagramPacket(data, data.length, addr, 4999));
+                if (addr instanceof Inet4Address) {
+                    socket.send(new DatagramPacket(data, data.length, addr, 4999));
+                }
             }
         }
     }
